@@ -1,7 +1,6 @@
-import numpy as np
 import pgzrun
 from random import randint
-from numpy import matrix
+
 
 TITLE = "Démineur par WG"
 HEIGHT = 400
