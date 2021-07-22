@@ -1,2 +1,4 @@
 pgzero
 easygui
+gtts
+playsound
