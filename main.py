@@ -1,14 +1,15 @@
-
 import pgzrun
 from random import randint
 from easygui import msgbox, ynbox
 import os
 import sys
+from gtts import gTTS
+from playsound import playsound
 
 position = 10000, 50
 os.environ['SDL_VIDEO_WINDOW_POS'] = str(position[0]) + "," + str(position[1])
 
-TITLE = "Démineur par WG"
+TITLE = "Démineur agressif par WG"
 HEIGHT = 400
 WIDTH = 400
 color = 0, 0, 0
@@ -146,6 +147,12 @@ def on_mouse_down(pos,button):
                     for j in r:
                         cells[i][j].revealed = True 
             finally:
+                try:
+                    insultes = ["Tu pues tes morts","ok le dog", "viens me voir de profil si t'es un homme"]
+                    tts = gTTS(insultes[randint(0,len(insultes)-1)],lang="fr")
+                    tts.save("insulte.mp3")
+                    playsound("insulte.mp3")
+                except: pass
                 if not(ynbox("Game over ! \n Rejouer ?")):
                     sys.exit(0)
                 else:
@@ -156,14 +163,6 @@ def on_mouse_down(pos,button):
         
 
 pgzrun.go()
-
-
-
-
-
-
-
-
 
 
 
