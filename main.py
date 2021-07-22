@@ -1,3 +1,4 @@
+
 import pgzrun
 from random import randint
 from easygui import msgbox, ynbox
@@ -152,6 +153,7 @@ def on_mouse_down(pos,button):
                     tts = gTTS(insultes[randint(0,len(insultes)-1)],lang="fr")
                     tts.save("insulte.mp3")
                     playsound("insulte.mp3")
+                    os.remove("insulte.mp3")
                 except: pass
                 if not(ynbox("Game over ! \n Rejouer ?")):
                     sys.exit(0)
@@ -163,6 +165,14 @@ def on_mouse_down(pos,button):
         
 
 pgzrun.go()
+
+
+
+
+
+
+
+
 
 
 
