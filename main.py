@@ -1,6 +1,12 @@
+
 import pgzrun
 from random import randint
+from easygui import msgbox, ynbox
+import os
+import sys
 
+position = 10000, 50
+os.environ['SDL_VIDEO_WINDOW_POS'] = str(position[0]) + "," + str(position[1])
 
 TITLE = "Démineur par WG"
 HEIGHT = 400
@@ -17,6 +23,7 @@ global r
 r = range(int(HEIGHT/w))
 
 totalbombs=20
+
 class Cell():
     def __init__(self,i,j,w):
         self.x = i*w
@@ -29,29 +36,56 @@ class Cell():
         self.neighbours = 0
         self.flagged = False
 
-        
+def reset():
+
+    for i in r:
+        for j in r:
+            cells[i][j].flagged = False
+            cells[i][j].revealed = False
+            cells[i][j].isBomb = False
+            cells[i][j].neighbours = 0
+            screen.draw.rect(cells[i][j].box, color)
+    addbombs(totalbombs)
+    AN()
+
+
+    
 
 cells=[[Cell(i,j,w) for j in r] for i in r]
 
-
+global index
 index=[]
-while totalbombs !=0:
-    x,y=randint(0,len(cells)-1),randint(0,len(cells)-1)
-    
-    if (x,y) not in index: cells[x][y].isBomb = True
-    index.append((x,y))
-    totalbombs-=1
-
+def addbombs(totalbombs):
+    while totalbombs !=0:
+        x,y=randint(1,len(cells)-2),randint(1,len(cells)-2)
         
-            
+        if (x,y) not in index:
+            cells[x][y].isBomb = True
+            index.append((x,y))
+            totalbombs-=1
+addbombs(totalbombs)
+bombs = [cells[i][j] for i,j in index]
+print(index)
+notbombs = [[cell for cell in cells[i] if not(cell.isBomb)] for i in r]
+
+def won():
+    for i in r:
+        for j in r:
+            if notbombs[i][j].revealed:
+                return True
+            else:
+                return False
 def AN():
     d=[-1,0,1]
-    for x in range(len(cells)-1):
-        for y in range(len(cells)-1):
-            if cells[x][y].isBomb:
-                for i in d:
-                    for j in d:
-                        cells[x+i][y+j].neighbours+=1
+    try:
+        for x in range(len(cells)-1):
+            for y in range(len(cells)-1):
+                if cells[x][y].isBomb:
+                    for i in d:
+                        for j in d:
+                            if x+i>=0 and y+j<=len(cells) and y+j>=0 and x+i<=len(cells):
+                                cells[x+i][y+j].neighbours+=1
+    except: pass
                         
 AN()
                 
@@ -71,6 +105,7 @@ def draw():
                     screen.draw.text(" ", center=(i*w + w/2,j*w + w/2), color="black")
                 
             if cells[i][j].isBomb and cells[i][j].revealed:
+                screen.draw.filled_rect(cells[i][j].boxD, (255,255,255))
                 screen.draw.text("B", center=(i*w + w/2,j*w + w/2), color="blue")
 
             
@@ -79,6 +114,11 @@ def draw():
 
 
 def on_mouse_down(pos,button):
+    if won():
+        if not(ynbox("Victoire ! \n Rejouer ?")):
+            sys.exit(0)
+        else:
+            reset()
     d=[-1,0,1]
     x = int(pos[0]/w)
     y = int(pos[1]/w)
@@ -88,24 +128,38 @@ def on_mouse_down(pos,button):
         if not(cells[x][y].flagged) and not(cells[x][y].isBomb):
             cells[x][y].revealed = True
             if cells[x][y].neighbours == 0:
+                clist=[]
                 for i in d:
                     for j in d:
-                        try:
-                            if not(cells[x+i][y+j].isBomb) and x+i>=0 and y+j<=len(cells)-1 and y+j>=0 and x+i<=len(cells)-1:
-                                newcell = cells[x+i][y+j]
-                                newcell.revealed = True
-                        except: pass
-        if cells[x][y].isBomb and not(cells[x][y].flagged):
-            for i in r:
-                for j in r:
-                    cells[i][j].revealed = True 
-            print("game over")
+                        if x+i>=0 and y+j<=len(cells)-1 and y+j>=0 and x+i<=len(cells)-1:
+                            clist.append(cells[x+i][y+j])
+                            for cell in clist:
+                                try:
+                                    if not(cell.isBomb) and x+i>=0 and y+j<=len(cells)-1 and y+j>=0 and x+i<=len(cells)-1:
+                                        
+                                        cell.revealed = True
+                                        
+                                except: pass
+        if cells[x][y].isBomb and not(cells[x][y].flagged) and not(won()):
+            try:
+                for i in r:
+                    for j in r:
+                        cells[i][j].revealed = True 
+            finally:
+                if not(ynbox("Game over ! \n Rejouer ?")):
+                    sys.exit(0)
+                else:
+                    reset()
     if button == 3:
         if not(cells[x][y].revealed):
             cells[x][y].flagged ^= 1
         
 
 pgzrun.go()
+
+
+
+
 
 
 
