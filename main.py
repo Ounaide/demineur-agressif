@@ -117,8 +117,7 @@ def draw():
                 screen.draw.filled_rect(cells[i][j].boxD, (255,255,255))
                 if cells[i][j].neighbours !=0:
                     screen.draw.text(str(cells[i][j].neighbours), center=(i*w + w/2,j*w + w/2), color="black")
-                else:
-                    screen.draw.text(" ", center=(i*w + w/2,j*w + w/2), color="black")
+
                 
             if cells[i][j].isBomb and cells[i][j].revealed:
                 screen.draw.filled_rect(cells[i][j].boxD, (255,255,255))
