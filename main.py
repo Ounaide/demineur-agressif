@@ -23,9 +23,9 @@ global w
 w=20
 global r
 r = range(int(HEIGHT/w))
-
+global leftbombs
 totalbombs=50
-
+leftbombs = totalbombs
 class Cell():
     def __init__(self,i,j,w):
         self.i = i
@@ -130,6 +130,7 @@ def draw():
 
 
 def on_mouse_down(pos,button):
+   
     if won():
         if not(ynbox("Victoire ! \n Rejouer ?")):
             sys.exit(0)
@@ -138,24 +139,13 @@ def on_mouse_down(pos,button):
     d=[-1,0,1]
     x = int(pos[0]/w)
     y = int(pos[1]/w)
-    print(f"Clic {button} sur case {x},{y}")
-    print(cells[x][y].neighbours)
+    #print(f"Clic {button} sur case {x},{y}")
+    #print(cells[x][y].neighbours)
+   
     if button == 1:
         if not(cells[x][y].flagged) and not(cells[x][y].isBomb):
             cells[x][y].reveal()
-            """if cells[x][y].neighbours == 0:
-                clist=[]
-                for i in d:
-                    for j in d:
-                        if x+i>=0 and y+j<=len(cells)-1 and y+j>=0 and x+i<=len(cells)-1:
-                            clist.append(cells[x+i][y+j])
-                            for cell in clist:
-                                try:
-                                    if not(cell.isBomb) and x+i>=0 and y+j<=len(cells)-1 and y+j>=0 and x+i<=len(cells)-1:
-                                        
-                                        cell.reveal()
-                                        
-                                except: pass"""
+            
         if cells[x][y].isBomb and not(cells[x][y].flagged) and not(won()):
             try:
                 for i in r:
@@ -174,8 +164,15 @@ def on_mouse_down(pos,button):
                 else:
                     reset()
     if button == 3:
+        global leftbombs
+        
         if not(cells[x][y].revealed):
+            if cells[x][y].flagged:
+                leftbombs+=1
+            else:
+                leftbombs-=1
             cells[x][y].flagged ^= 1
+        print(leftbombs)
         
 
 pgzrun.go()
