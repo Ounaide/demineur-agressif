@@ -49,7 +49,7 @@ class Cell():
         d=[-1,0,1]
         for a in d:
             for b in d:
-                if self.i+a>=0 and self.j+b<=len(cells)-1 and self.j+b>=0 and self.i+a<=len(cells)-1 and not(cells[self.i+a][self.j+b].revealed):
+                if self.i+a>=0 and self.j+b<=len(cells)-1 and self.j+b>=0 and self.i+a<=len(cells)-1 and not(cells[self.i+a][self.j+b].revealed) and not(cells[self.i+a][self.j+b].flagged):
                     cells[self.i+a][self.j+b].reveal()
                     
 def reset():
@@ -138,30 +138,24 @@ def on_mouse_down(pos,button):
     d=[-1,0,1]
     x = int(pos[0]/w)
     y = int(pos[1]/w)
-    #print(f"Clic {button} sur case {x},{y}")
+    print(f"Clic {button} sur case {x},{y}")
     #print(cells[x][y].neighbours)
-   
+
+    if button == 2:
+        if not cells[x][y].revealed:
+            d = [-1,0,1]
+            for i in d:
+                for j in d:
+                     if x+i>=0 and y+j<=len(cells) and y+j>=0 and x+i<=len(cells) and not(cells[x+i][y+j].flagged):
+                         cells[x+i][y+j].reveal()
+                         if cells[x+i][y+j].isBomb:
+                             gameover()
     if button == 1:
-        if not(cells[x][y].flagged) and not(cells[x][y].isBomb):
+        if not(cells[x][y].flagged):
             cells[x][y].reveal()
             
         if cells[x][y].isBomb and not(cells[x][y].flagged) and not(won()):
-            try:
-                for i in r:
-                    for j in r:
-                        cells[i][j].reveal() 
-            finally:
-                try:
-                    insultes = ["Tu pues tes morts","ok le dog", "viens me voir de profil si t'es un homme"]
-                    tts = gTTS(insultes[randint(0,len(insultes)-1)],lang="fr")
-                    tts.save("insulte.mp3")
-                    playsound("insulte.mp3")
-                    os.remove("insulte.mp3")
-                except: pass
-                if not(ynbox("Game over ! \n Rejouer ?")):
-                    sys.exit(0)
-                else:
-                    reset()
+            gameover()
     if button == 3:
         global leftbombs
         
@@ -172,7 +166,24 @@ def on_mouse_down(pos,button):
                 leftbombs-=1
             cells[x][y].flagged ^= 1
         print(leftbombs)
-        
+
+def gameover():
+    try:
+        for i in r:
+            for j in r:
+                cells[i][j].reveal() 
+    finally:
+        try:
+            insultes = ["Tu pues tes morts","ok le dog", "viens me voir de profil si t'es un homme"]
+            tts = gTTS(insultes[randint(0,len(insultes)-1)],lang="fr")
+            tts.save("insulte.mp3")
+            playsound("insulte.mp3")
+            os.remove("insulte.mp3")
+        except: pass
+        if not(ynbox("Game over ! \n Rejouer ?")):
+            sys.exit(0)
+        else:
+            reset()
 
 pgzrun.go()
 
