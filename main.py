@@ -24,10 +24,12 @@ w=20
 global r
 r = range(int(HEIGHT/w))
 
-totalbombs=20
+totalbombs=50
 
 class Cell():
     def __init__(self,i,j,w):
+        self.i = i
+        self.j = j
         self.x = i*w
         self.y = j*w
         self.w = w
@@ -38,6 +40,18 @@ class Cell():
         self.neighbours = 0
         self.flagged = False
 
+    def reveal(self):
+        self.revealed = True
+        if self.neighbours == 0:
+            self.floodfill()
+          
+    def floodfill(self):
+        d=[-1,0,1]
+        for a in d:
+            for b in d:
+                if self.i+a>=0 and self.j+b<=len(cells)-1 and self.j+b>=0 and self.i+a<=len(cells)-1 and not(cells[self.i+a][self.j+b].revealed):
+                    cells[self.i+a][self.j+b].reveal()
+                    
 def reset():
 
     for i in r:
@@ -128,8 +142,8 @@ def on_mouse_down(pos,button):
     print(cells[x][y].neighbours)
     if button == 1:
         if not(cells[x][y].flagged) and not(cells[x][y].isBomb):
-            cells[x][y].revealed = True
-            if cells[x][y].neighbours == 0:
+            cells[x][y].reveal()
+            """if cells[x][y].neighbours == 0:
                 clist=[]
                 for i in d:
                     for j in d:
@@ -139,14 +153,14 @@ def on_mouse_down(pos,button):
                                 try:
                                     if not(cell.isBomb) and x+i>=0 and y+j<=len(cells)-1 and y+j>=0 and x+i<=len(cells)-1:
                                         
-                                        cell.revealed = True
+                                        cell.reveal()
                                         
-                                except: pass
+                                except: pass"""
         if cells[x][y].isBomb and not(cells[x][y].flagged) and not(won()):
             try:
                 for i in r:
                     for j in r:
-                        cells[i][j].revealed = True 
+                        cells[i][j].reveal() 
             finally:
                 try:
                     insultes = ["Tu pues tes morts","ok le dog", "viens me voir de profil si t'es un homme"]
