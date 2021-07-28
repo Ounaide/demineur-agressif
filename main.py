@@ -1,7 +1,7 @@
 
 import pgzrun
 from random import randint
-from easygui import msgbox, ynbox
+import PySimpleGUI as sg
 import os
 import sys
 from gtts import gTTS
@@ -26,6 +26,18 @@ r = range(int(HEIGHT/w))
 global leftbombs
 totalbombs=50
 leftbombs = totalbombs
+
+def layout(status):
+
+    layout = [ [sg.T(f"{status} \nRejouer ?")],
+               [sg.B("Oui"), sg.B("Non")]
+               ]
+    w = sg.Window("Écran de fin",layout)
+    event, values = w.read()
+    w.close()
+    
+    return event
+    
 class Cell():
     def __init__(self,i,j,w):
         self.i = i
@@ -131,32 +143,32 @@ def draw():
 def on_mouse_down(pos,button):
    
     if won():
-        if not(ynbox("Victoire ! \n Rejouer ?")):
+        if layout("Victoire !") == "Non":
             sys.exit(0)
         else:
             reset()
     d=[-1,0,1]
     x = int(pos[0]/w)
     y = int(pos[1]/w)
-    print(f"Clic {button} sur case {x},{y}")
-    #print(cells[x][y].neighbours)
 
-    if button == 2:
-        if not cells[x][y].revealed:
+
+    if button == mouse.MIDDLE:
+        if cells[x][y].revealed:
             d = [-1,0,1]
             for i in d:
                 for j in d:
-                     if x+i>=0 and y+j<=len(cells) and y+j>=0 and x+i<=len(cells) and not(cells[x+i][y+j].flagged):
+                     if x+i>=0 and y+j<len(cells) and y+j>=0 and x+i<len(cells) and not(cells[x+i][y+j].flagged):
                          cells[x+i][y+j].reveal()
                          if cells[x+i][y+j].isBomb:
                              gameover()
-    if button == 1:
+                             
+    if button == mouse.LEFT:
         if not(cells[x][y].flagged):
             cells[x][y].reveal()
             
         if cells[x][y].isBomb and not(cells[x][y].flagged) and not(won()):
             gameover()
-    if button == 3:
+    if button == mouse.RIGHT:
         global leftbombs
         
         if not(cells[x][y].revealed):
@@ -180,20 +192,10 @@ def gameover():
             playsound("insulte.mp3")
             os.remove("insulte.mp3")
         except: pass
-        if not(ynbox("Game over ! \n Rejouer ?")):
+        if layout("Défaite !") == "Non":
             sys.exit(0)
         else:
             reset()
 
 pgzrun.go()
-
-
-
-
-
-
-
-
-
-
 
