@@ -224,7 +224,7 @@ def gameover():
             insultes = ["Tu pues tes morts","ok le dog", "viens te battre de profil si t'es un homme"]
             tts = gTTS(insultes[randint(0,len(insultes)-1)],lang="fr")
             tts.save("insulte.mp3")
-            #playsound("insulte.mp3")
+            playsound("insulte.mp3")
             os.remove("insulte.mp3")
         except: pass
         if layout("Défaite !") == "Non":
