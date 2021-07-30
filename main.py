@@ -6,6 +6,8 @@ import os
 import sys
 from gtts import gTTS
 from playsound import playsound
+from iteration_utilities import deepflatten
+
 
 position = 10000, 50
 os.environ['SDL_VIDEO_WINDOW_POS'] = str(position[0]) + "," + str(position[1])
@@ -15,7 +17,7 @@ HEIGHT = 400
 WIDTH = 400
 color = 0, 0, 0
 
-
+sg.theme("Default1")
 g=globals()
 global cells
 
@@ -24,8 +26,9 @@ w=20
 global r
 r = range(int(HEIGHT/w))
 global leftbombs
-totalbombs=50
+totalbombs=10
 leftbombs = totalbombs
+cbombs = totalbombs
 
 def layout(status):
 
@@ -73,8 +76,10 @@ def reset():
             cells[i][j].isBomb = False
             cells[i][j].neighbours = 0
             screen.draw.rect(cells[i][j].box, color)
+            
     addbombs(totalbombs)
     AN()
+    notbombs = [[cell for cell in cells[i] if not(cell.isBomb)] for i in r]
 
 
     
@@ -96,13 +101,14 @@ bombs = [cells[i][j] for i,j in index]
 print(index)
 notbombs = [[cell for cell in cells[i] if not(cell.isBomb)] for i in r]
 
+
 def won():
-    for i in r:
-        for j in r:
-            if notbombs[i][j].revealed:
-                return True
-            else:
-                return False
+    NBrevealed = list(deepflatten([[cell for cell in notbombs[i] if cell.revealed] for i in r]))
+    if len(NBrevealed) == len(cells)**2 - cbombs:
+        return True
+    else:
+        return False
+
 def AN():
     d=[-1,0,1]
     try:
@@ -135,32 +141,59 @@ def draw():
                 screen.draw.filled_rect(cells[i][j].boxD, (255,255,255))
                 screen.draw.text("B", center=(i*w + w/2,j*w + w/2), color="blue")
 
-            
-                
+def on_key_down(key):
+    if key ==  keys.SPACE:
+        fullreveal(position[0],position[1])
+    if key == keys.ESCAPE:
+        sys.exit(0)
+    if key == keys.R:
+        reset()
 
-
-
-def on_mouse_down(pos,button):
-   
+def on_key_up():
     if won():
         if layout("Victoire !") == "Non":
             sys.exit(0)
         else:
             reset()
+            
+def on_mouse_move(pos):
+    global position
+    x = int(pos[0]/w)
+    y = int(pos[1]/w)
+    position = (x,y)
+
+                
+
+def fullreveal(x,y):
+    if cells[x][y].revealed:
+        d = [-1,0,1]
+        for i in d:
+            for j in d:
+                 if x+i>=0 and y+j<len(cells) and y+j>=0 and x+i<len(cells) and not(cells[x+i][y+j].flagged):
+                     cells[x+i][y+j].reveal()
+                     if cells[x+i][y+j].isBomb or (cells[x+i][y+j].flagged and not(cells[x+i][y+j].isBomb)):
+                         gameover()
+
+def on_mouse_up():
+    if won():
+        if layout("Victoire !") == "Non":
+            sys.exit(0)
+        else:
+            reset()
+    
+        
+def on_mouse_down(pos,button):
+  
+    
+        
     d=[-1,0,1]
     x = int(pos[0]/w)
     y = int(pos[1]/w)
 
 
     if button == mouse.MIDDLE:
-        if cells[x][y].revealed:
-            d = [-1,0,1]
-            for i in d:
-                for j in d:
-                     if x+i>=0 and y+j<len(cells) and y+j>=0 and x+i<len(cells) and not(cells[x+i][y+j].flagged):
-                         cells[x+i][y+j].reveal()
-                         if cells[x+i][y+j].isBomb:
-                             gameover()
+        fullreveal(x,y)
+        
                              
     if button == mouse.LEFT:
         if not(cells[x][y].flagged):
@@ -178,6 +211,8 @@ def on_mouse_down(pos,button):
                 leftbombs-=1
             cells[x][y].flagged ^= 1
         print(leftbombs)
+        
+
 
 def gameover():
     try:
@@ -189,7 +224,7 @@ def gameover():
             insultes = ["Tu pues tes morts","ok le dog", "viens te battre de profil si t'es un homme"]
             tts = gTTS(insultes[randint(0,len(insultes)-1)],lang="fr")
             tts.save("insulte.mp3")
-            playsound("insulte.mp3")
+            #playsound("insulte.mp3")
             os.remove("insulte.mp3")
         except: pass
         if layout("Défaite !") == "Non":
