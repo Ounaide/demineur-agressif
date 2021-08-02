@@ -139,8 +139,11 @@ def draw(): #PG0 built in function. Creates the canvas and draws the game
         for j in r:
             screen.draw.rect(cells[i][j].box, color) #draw the grid
             if cells[i][j].flagged: #draw a flag
-                #screen.draw.text("F", (i*w + w/4,j*w + w/4), color="red")
-                screen.blit("flag", (i*w + w/8 ,j*w+w/8))
+                try:
+                    screen.blit("flag", (i*w + w/8 ,j*w+w/8))
+                except:
+                    screen.draw.text("F", (i*w + w/4,j*w + w/4), color="red")
+                
             if cells[i][j].revealed and not(cells[i][j].flagged): 
                 screen.draw.filled_rect(cells[i][j].boxD, (255,255,255)) #draw the reveal effect
                 if cells[i][j].neighbours !=0: #keep the cell empty if it has no neighbours at all
