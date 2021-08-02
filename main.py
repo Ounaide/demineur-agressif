@@ -17,6 +17,14 @@ HEIGHT = 400
 WIDTH = 400
 color = 0, 0, 0
 
+colors = {1:(0,0,255),
+          2:(0,255,0),
+          3:(255,0,0),
+          4:(0,0,128),
+          5:(170,0,255),
+          6:(0,179,179)}       
+
+
 sg.theme("Default1")
 g=globals()
 global cells
@@ -136,7 +144,7 @@ def draw(): #PG0 built in function. Creates the canvas and draws the game
             if cells[i][j].revealed and not(cells[i][j].flagged): 
                 screen.draw.filled_rect(cells[i][j].boxD, (255,255,255)) #draw the reveal effect
                 if cells[i][j].neighbours !=0: #keep the cell empty if it has no neighbours at all
-                    screen.draw.text(str(cells[i][j].neighbours), center=(i*w + w/2,j*w + w/2), color="black") # ^ otherwise, draw the number of surrounding bombs
+                    screen.draw.text(str(cells[i][j].neighbours), center=(i*w + w/2,j*w + w/2), color=colors[cells[i][j].neighbours]) # ^ otherwise, draw the number of surrounding bombs
 
                 
             if cells[i][j].isBomb and cells[i][j].revealed: #draw a bomb
@@ -235,4 +243,3 @@ def gameover():
             reset()
 
 pgzrun.go()
-
