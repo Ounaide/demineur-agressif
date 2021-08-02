@@ -17,7 +17,7 @@ HEIGHT = 400
 WIDTH = 400
 color = 0, 0, 0
 
-colors = {1:(0,0,255),
+colors = {1:(0,0,255), #color palette
           2:(0,255,0),
           3:(255,0,0),
           4:(0,0,128),
@@ -139,9 +139,9 @@ def draw(): #PG0 built in function. Creates the canvas and draws the game
         for j in r:
             screen.draw.rect(cells[i][j].box, color) #draw the grid
             if cells[i][j].flagged: #draw a flag
-                try:
+                try: #use flag.png if possible
                     screen.blit("flag", (i*w + w/8 ,j*w+w/8))
-                except:
+                except: #draw a red F otherwise
                     screen.draw.text("F", (i*w + w/4,j*w + w/4), color="red")
                 
             if cells[i][j].revealed and not(cells[i][j].flagged): 
